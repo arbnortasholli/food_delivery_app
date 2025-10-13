@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { TextInput } from 'react-native/types_generated/index'
+import { TextInput } from 'react-native'
 
 const loginscreen = () => {
   return (
