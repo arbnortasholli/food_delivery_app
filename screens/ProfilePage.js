@@ -1,40 +1,72 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button } from 'react-native';
-import { useTheme } from '../theme/ThemeContext';
+import React from 'react';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
-
-export default function ProfilePage({ navigation }) {
+export default function Profile() {
   const { colors } = useTheme();
-  const [name, setName] = useState('John Doe');
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 22, fontWeight: 'bold', color: colors.text, marginBottom: 10 }}>Profile 👤</Text>
-      <Text style={{ fontSize: 16, color: colors.text, opacity: 0.8, marginBottom: 20 }}>
-        Welcome back, {name}!
-      </Text>
-
-      <TextInput
-        placeholder="Update your name..."
-        placeholderTextColor={colors.text + '80'}
-        value={name}
-        onChangeText={setName}
-        style={{
-          borderWidth: 1,
-          borderColor: colors.primary,
-          borderRadius: 8,
-          padding: 10,
-          width: 220,
-          color: colors.text,
-          marginBottom: 20,
-          backgroundColor: colors.card,
-        }}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* User Avatar */}
+      <Image
+        source={require('../assets/avatar.png')} 
+        style={styles.avatar}
+        resizeMode="cover"
       />
 
-      <Button color={colors.primary} title="Save Changes 💾" onPress={() => alert('Profile updated!')} />
-      <View style={{ marginTop: 20 }}>
-        <Button color={colors.accent} title="Back to Main 🏠" onPress={() => navigation.navigate('Main')} />
+      {/* User Info */}
+      <Text style={[styles.name, { color: colors.text }]}>John Doe</Text>
+      <Text style={[styles.email, { color: colors.text }]}>johndoe@example.com</Text>
+
+      {/* Profile Sections */}
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionText, { color: colors.text }]}>Order History</Text>
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionText, { color: colors.text }]}>Favorites</Text>
+      </View>
+
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionText, { color: colors.text }]}>Settings</Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 20,
+  },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 15,
+  },
+  name: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  email: {
+    fontSize: 16,
+    opacity: 0.7,
+    marginBottom: 20,
+  },
+  section: {
+    width: '100%',
+    padding: 15,
+    borderRadius: 12,
+    marginVertical: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  sectionText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
