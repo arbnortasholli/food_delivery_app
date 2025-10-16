@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Switch, Image, TextInput } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Switch, Image, TextInput } from 'react-native';  
 import { useTheme } from '../context/ThemeContext';
 import { useCart } from '../context/CartContext';
 import { mainStyles } from '../styles/mainStyles';
@@ -18,7 +18,7 @@ export default function MainPage({ navigation }) {
     { id: '6', name: 'Chicken Nuggets', price: 6.99, image: require('../assets/foods/nuggets].jpg') },
   ];
 
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState('');     //Implementimi i UseState
   const filteredFoods = foods.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -26,7 +26,7 @@ export default function MainPage({ navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
-      headerTitle: 'FoodExpress 🚴‍♂️',
+      headerTitle: 'FoodExpress',
       headerStyle: { backgroundColor: colors.card },
       headerTitleStyle: { color: colors.text },
       headerRight: () => (
@@ -42,7 +42,7 @@ export default function MainPage({ navigation }) {
 
   return (
     <View style={[AppStyles.container, { backgroundColor: colors.background }]}>
-      {/* 🔍 Search Bar */}
+      {/*Search Bar,  Perdorimi i TextInput */}
       <TextInput
         placeholder="Search food..."
         value={searchQuery}
@@ -53,7 +53,7 @@ export default function MainPage({ navigation }) {
 
       <Text style={[mainStyles.subtitle, { color: colors.text }]}>Choose your favorite meal:</Text>
 
-      {/* ✅ FULL WIDTH LIST */}
+      {/* Perdorimi i FlatList, TouchableOpacity, Image */}
       <FlatList
         data={filteredFoods}
         keyExtractor={(item) => item.id}

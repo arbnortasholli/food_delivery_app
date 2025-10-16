@@ -19,14 +19,14 @@ export default function Order({ navigation }) {
 
   const handleCheckout = () => {
     Alert.alert(
-      'Order Successful ✅',
+      'Order Successful',
       'Your order has been placed!',
       [
         {
           text: 'OK',
           onPress: () => {
             clearCart();
-            navigation.navigate('Home'); // Go back to Home tab
+            navigation.navigate('Home'); 
           },
         },
       ]
@@ -36,7 +36,7 @@ export default function Order({ navigation }) {
   return (
     <View style={[orderStyles.container, { backgroundColor: colors.background }]}>
       {cart.length === 0 ? (
-        <Text style={[orderStyles.emptyText, { color: colors.text }]}>Your cart is empty 😢</Text>
+        <Text style={[orderStyles.emptyText, { color: colors.text }]}>Your cart is empty</Text>
       ) : (
         <>
           <FlatList
