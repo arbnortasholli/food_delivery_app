@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Switch, Image, TextInput } from 'react-native';  
+import { View, Text, FlatList, TouchableOpacity, Switch, Image, TextInput, Alert } from 'react-native';  
 import { useTheme } from '../context/ThemeContext';
 import { useCart } from '../context/CartContext';
 import { mainStyles } from '../styles/mainStyles';
@@ -18,7 +18,19 @@ export default function MainPage({ navigation }) {
     { id: '6', name: 'Chicken Nuggets', price: 6.99, image: require('../assets/foods/nuggets].jpg') },
   ];
 
-  const [searchQuery, setSearchQuery] = React.useState('');     //Implementimi i UseState
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const handleAddToCart = (item) => {
+    Alert.alert(
+      "Add to Cart",
+      `Do you want to add "${item.name}" to your cart?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Add", onPress: () => addToCart(item) }
+      ]
+    );
+  };
+
   const filteredFoods = foods.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -42,7 +54,6 @@ export default function MainPage({ navigation }) {
 
   return (
     <View style={[AppStyles.container, { backgroundColor: colors.background }]}>
-      {/*Search Bar,  Perdorimi i TextInput */}
       <TextInput
         placeholder="Search food..."
         value={searchQuery}
@@ -53,7 +64,6 @@ export default function MainPage({ navigation }) {
 
       <Text style={[mainStyles.subtitle, { color: colors.text }]}>Choose your favorite meal:</Text>
 
-      {/* Perdorimi i FlatList, TouchableOpacity, Image */}
       <FlatList
         data={filteredFoods}
         keyExtractor={(item) => item.id}
@@ -61,7 +71,7 @@ export default function MainPage({ navigation }) {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={[mainStyles.cardFull, { backgroundColor: colors.card, shadowColor: colors.text }]}
-            onPress={() => addToCart(item)}
+            onPress={() => handleAddToCart(item)}
           >
             <Image source={item.image} style={mainStyles.foodImageFull} resizeMode="cover" />
             <View style={mainStyles.foodInfo}>

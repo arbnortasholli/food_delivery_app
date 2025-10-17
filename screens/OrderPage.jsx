@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useCart } from '../context/CartContext';
 import { orderStyles } from '../styles/orderStyles';
@@ -18,23 +19,22 @@ export default function Order({ navigation }) {
   };
 
   const handleCheckout = () => {
-    Alert.alert(
-      'Order Successful',
-      'Your order has been placed!',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            clearCart();
-            navigation.navigate('Home'); 
-          },
+    Alert.alert('Order Successful', 'Your order has been placed!', [
+      {
+        text: 'OK',
+        onPress: () => {
+          clearCart();
+          navigation.navigate('Home');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
-    <View style={[orderStyles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[orderStyles.container, { backgroundColor: colors.background }]}
+      edges={['top', 'left', 'right', 'bottom']} 
+    >
       {cart.length === 0 ? (
         <Text style={[orderStyles.emptyText, { color: colors.text }]}>Your cart is empty</Text>
       ) : (
@@ -42,7 +42,7 @@ export default function Order({ navigation }) {
           <FlatList
             data={cart}
             keyExtractor={(_, index) => index.toString()}
-            contentContainerStyle={{ paddingBottom: 20 }}
+            contentContainerStyle={{ paddingBottom: 140 }} 
             renderItem={({ item, index }) => (
               <View style={[orderStyles.card, { backgroundColor: colors.card, shadowColor: colors.text }]}>
                 <Image source={item.image} style={orderStyles.image} resizeMode="cover" />
@@ -57,7 +57,7 @@ export default function Order({ navigation }) {
             )}
           />
 
-          <View style={orderStyles.totalBox}>
+          <View style={[orderStyles.totalBox, { paddingBottom: 10 }]}>
             <Text style={[orderStyles.totalText, { color: colors.text }]}>
               Total: ${total.toFixed(2)}
             </Text>
@@ -75,6 +75,6 @@ export default function Order({ navigation }) {
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
