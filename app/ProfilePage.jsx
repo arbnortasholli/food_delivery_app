@@ -1,4 +1,32 @@
-import { StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, Image, StyleSheet } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function ProfilePage() {
+  const { colors } = useTheme();
+  const styles = profileStyles(colors);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Image source={require('../assets/avatar.png')} style={styles.avatar} resizeMode="cover" />
+      <Text style={styles.name}>John Doe</Text>
+      <Text style={styles.email}>johndoe@example.com</Text>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionText}>Order History</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionText}>Favorites</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionText}>Settings</Text>
+      </View>
+    </SafeAreaView>
+  );
+}
 
 export const profileStyles = (colors) =>
   StyleSheet.create({
@@ -46,3 +74,4 @@ export const profileStyles = (colors) =>
       color: colors.text,
     },
   });
+
