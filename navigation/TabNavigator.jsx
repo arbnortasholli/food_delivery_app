@@ -30,7 +30,7 @@ export default function TabNavigator() {
         },
       }}
     >
-      {/* Only these 3 tabs will show in the tab bar */}
+     
       <Tabs.Screen
         name="index"
         options={{

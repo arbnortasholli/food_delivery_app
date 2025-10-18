@@ -1,18 +1,19 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Avatar from '../assets/avatar.png'
+import { Ionicons } from '@expo/vector-icons';
+import Avatar from '../assets/avatar.png';
 
 export default function ProfilePage() {
-  const { colors } = useTheme();
+  const { colors, userPreference, setLightMode, setDarkMode, setSystemMode } = useTheme();
   const styles = profileStyles(colors);
 
   return (
     <SafeAreaView style={styles.container}>
       <Image source={Avatar} style={styles.avatar} resizeMode="cover" />
-      <Text style={styles.name}>John Doe</Text>
-      <Text style={styles.email}>johndoe@example.com</Text>
+      <Text style={styles.name}>Guest</Text>
+      <Text style={styles.email}>Guest@example.com</Text>
 
       <View style={styles.section}>
         <Text style={styles.sectionText}>Order History</Text>
@@ -24,6 +25,64 @@ export default function ProfilePage() {
 
       <View style={styles.section}>
         <Text style={styles.sectionText}>Settings</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionText}>Appearance</Text>
+        <View style={styles.modeContainer}>
+          {[
+            {
+              label: 'System',
+              value: null,
+              icon: 'phone-portrait',
+              activeIcon: 'phone-portrait'
+            },
+            {
+              label: 'Light',
+              value: 'light',
+              icon: 'sunny-outline',
+              activeIcon: 'sunny'
+            },
+            {
+              label: 'Dark',
+              value: 'dark',
+              icon: 'moon-outline',
+              activeIcon: 'moon'
+            },
+          ].map(({ label, value, icon, activeIcon }) => {
+            const isActive = userPreference === value || (value === null && userPreference === null);
+            const currentIcon = isActive ? activeIcon : icon;
+            const iconColor = isActive ? "#fff" : colors.primary;
+
+            return (
+              <TouchableOpacity
+                key={label}
+                onPress={() => value === null ? setSystemMode() : value === 'light' ? setLightMode() : setDarkMode()}
+                style={[
+                  styles.modeButton,
+                  isActive && styles.modeButtonActive
+                ]}
+              >
+                <Ionicons
+                  name={currentIcon}
+                  size={22}
+                  color={iconColor}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <View style={styles.currentThemeInfo}>
+          <Text style={[styles.currentThemeText, { color: colors.text }]}>
+            {userPreference === null
+              ? 'Using system mode'
+              : userPreference === 'light'
+                ? 'Using light mode'
+                : 'Using dark mode'
+            }
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -74,5 +133,34 @@ export const profileStyles = (colors) =>
       fontWeight: '600',
       color: colors.text,
     },
+    modeContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 10,
+    },
+    modeButton: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card,
+      width: 105,
+      height: 50,
+    },
+    modeButtonActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    currentThemeInfo: {
+      marginTop: 15,
+      paddingTop: 15,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+    },
+    currentThemeText: {
+      fontSize: 14,
+      textAlign: 'center',
+      opacity: 0.8,
+    },
   });
-

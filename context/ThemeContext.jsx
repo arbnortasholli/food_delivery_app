@@ -1,41 +1,52 @@
+// context/ThemeContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Appearance } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import Colors from '../constants/Colors';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const colorScheme = Appearance.getColorScheme(); 
-  const [isDark, setIsDark] = useState(colorScheme === 'dark');
+    const systemScheme = Appearance.getColorScheme();
+    const [userPreference, setUserPreference] = useState(null);
+    const [systemTheme, setSystemTheme] = useState(systemScheme);
 
-  const lightTheme = {
-    mode: 'light',
-    background: '#FFF8F0',
-    text: '#333333',
-    card: '#FFFFFF',
-    primary: '#FF7F00',
-    accent: '#FFB266',
-    border: '#E2E2E2',
-  };
+    useEffect(() => {
+        const listener = Appearance.addChangeListener(({ colorScheme }) => {
+            setSystemTheme(colorScheme);
+        });
+        return () => listener.remove();
+    }, []);
 
-  const darkTheme = {
-    mode: 'dark',
-    background: '#121212',
-    text: '#FFFFFF',
-    card: '#1F1F1F',
-    primary: '#FF7F00',
-    accent: '#FFB266',
-    border: '#333333',
-  };
+    const isDarkMode = userPreference === null ? systemTheme === 'dark' : userPreference === 'dark';
 
-  const theme = isDark ? darkTheme : lightTheme;
+    const theme = isDarkMode ? Colors.dark : Colors.light;
+    const setLightMode = () => setUserPreference('light');
+    const setDarkMode = () => setUserPreference('dark');
+    const setSystemMode = () => setUserPreference(null);
 
-  const toggleTheme = () => setIsDark(!isDark);
+    const value = {
+        colors: theme,
+        isDark: isDarkMode,
+        colorScheme: isDarkMode ? 'dark' : 'light',
+        userPreference,
+        setLightMode,
+        setDarkMode,
+        setSystemMode,
+    };
 
-  return (
-    <ThemeContext.Provider value={{ colors: theme, isDark, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+    return (
+        <ThemeContext.Provider value={value}>
+            <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+            {children}
+        </ThemeContext.Provider>
+    );
 };
 
-export const useTheme = () => useContext(ThemeContext);
+export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
+};

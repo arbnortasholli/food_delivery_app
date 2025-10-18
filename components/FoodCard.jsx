@@ -2,7 +2,13 @@ import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
-export default function FoodCard({ item, onPress, onRemove, showRemove = false, onIncrease, onDecrease }) {
+export default function FoodCard({
+  item,
+  onPress,
+  showRemove = false,
+  onIncrease,
+  onDecrease
+}) {
   const { colors } = useTheme();
 
   return (
@@ -24,12 +30,20 @@ export default function FoodCard({ item, onPress, onRemove, showRemove = false, 
 
       {showRemove && (
         <View style={styles.quantityBox}>
-          <TouchableOpacity onPress={() => onDecrease && onDecrease(item.id)} style={styles.qtyButton}>
-            <Text style={styles.qtyText}>-</Text>
+          <TouchableOpacity
+            onPress={() => onDecrease && onDecrease(item.id)}
+            style={[styles.qtyButton, { backgroundColor: colors.border }]}
+          >
+            <Text style={[styles.qtyText, { color: colors.text }]}>-</Text>
           </TouchableOpacity>
+
           <Text style={[styles.qtyCount, { color: colors.text }]}>{item.quantity}</Text>
-          <TouchableOpacity onPress={() => onIncrease && onIncrease(item.id)} style={styles.qtyButton}>
-            <Text style={styles.qtyText}>+</Text>
+
+          <TouchableOpacity
+            onPress={() => onIncrease && onIncrease(item.id)}
+            style={[styles.qtyButton, { backgroundColor: colors.border }]}
+          >
+            <Text style={[styles.qtyText, { color: colors.text }]}>+</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -56,7 +70,6 @@ const styles = StyleSheet.create({
   qtyButton: {
     padding: 6,
     borderRadius: 6,
-    backgroundColor: '#ddd',
     marginHorizontal: 4,
   },
   qtyText: { fontSize: 16, fontWeight: 'bold' },
