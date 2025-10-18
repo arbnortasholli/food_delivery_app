@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { View, Text, FlatList, Switch, TextInput, Alert, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { useCart } from '../context/CartContext';
-import FoodCard from '../components/FoodCard';
+import FoodCard from '../components/FoodCard'; // ✅ përdorim i njëjtë si më parë
 import { foods } from '../constants/data';
 
 export default function MainPage() {
   const navigation = useNavigation();
   const { colors, isDark, toggleTheme } = useTheme();
   const { addToCart } = useCart();
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleAddToCart = (item) => {
     Alert.alert(
@@ -23,12 +23,11 @@ export default function MainPage() {
     );
   };
 
-
   const filteredFoods = foods.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: true,
       headerTitle: 'FoodExpress',
@@ -61,9 +60,13 @@ export default function MainPage() {
 
       <FlatList
         data={filteredFoods}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         renderItem={({ item }) => (
-          <FoodCard item={item} onPress={handleAddToCart} colors={colors} />
+          <FoodCard
+            item={item}
+            onPress={handleAddToCart}
+            showRemove={false} // nuk shfaqet Remove në menynë kryesore
+          />
         )}
       />
     </View>
@@ -97,8 +100,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginRight: 8,
-  },
-  flatListContent: {
-    paddingBottom: 20,
   },
 });
