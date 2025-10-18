@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Avatar from '../assets/avatar.png'
 
 export default function ProfilePage() {
   const { colors } = useTheme();
@@ -9,7 +10,7 @@ export default function ProfilePage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image source={require('../assets/avatar.png')} style={styles.avatar} resizeMode="cover" />
+      <Image source={Avatar} style={styles.avatar} resizeMode="cover" />
       <Text style={styles.name}>John Doe</Text>
       <Text style={styles.email}>johndoe@example.com</Text>
 
