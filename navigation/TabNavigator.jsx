@@ -3,7 +3,6 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { TouchableOpacity, View } from 'react-native';
-
 function TabBar({ props }) {
   const { colors } = useTheme();
 
@@ -22,6 +21,12 @@ function TabBar({ props }) {
         return <Ionicons name="home" color={iconColor} size={iconSize} />;
     }
   };
+
+  const visibleTabs = [
+    { name: 'index', label: 'Home' },
+    { name: 'OrderPage', label: 'Orders' },
+    { name: 'ProfilePage', label: 'Profile' }
+  ];
 
   return (
     <View
@@ -43,14 +48,13 @@ function TabBar({ props }) {
         shadowRadius: 10,
       }}
     >
-      {props.state.routes.map((route, index) => {
-        if (route.name.includes('auth') || route.name === 'loginscreen') return null;
+      {visibleTabs.map((tab, index) => {
         const isFocused = props.state.index === index;
 
         return (
           <TouchableOpacity
-            key={route.key}
-            onPress={() => props.navigation.navigate(route.name)}
+            key={tab.name}
+            onPress={() => props.navigation.navigate(tab.name)}
             style={{ alignItems: "center", justifyContent: "center" }}
             activeOpacity={0.8}
           >
@@ -64,7 +68,7 @@ function TabBar({ props }) {
                 backgroundColor: isFocused ? "rgba(255,255,255,0.2)" : "transparent",
               }}
             >
-              {getTabIcon(route.name, isFocused)}
+              {getTabIcon(tab.name, isFocused)}
             </View>
           </TouchableOpacity>
         );
