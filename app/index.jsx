@@ -71,7 +71,9 @@ export default function MainPage() {
           />
         )}
         contentContainerStyle={{ paddingBottom: 20 }}
-      />
+             showsVerticalScrollIndicator={false} 
+
+     />
     </View>
   );
 }

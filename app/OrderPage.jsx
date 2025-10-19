@@ -38,6 +38,8 @@ export default function OrderPage() {
                 onDecrease={handleDecrease}
               />
             )}
+            showsVerticalScrollIndicator={false}
+
           />
 
           <View style={styles.totalBox}>

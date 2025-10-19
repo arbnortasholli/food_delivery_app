@@ -2,6 +2,77 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { TouchableOpacity, View } from 'react-native';
+
+function TabBar({ props }) {
+  const { colors } = useTheme();
+
+  const getTabIcon = (routeName, isFocused) => {
+    const iconColor = isFocused ? colors.primary : colors.text;
+    const iconSize = isFocused ? 28 : 24;
+
+    switch (routeName) {
+      case 'index':
+        return <Ionicons name="home" color={iconColor} size={iconSize} />;
+      case 'OrderPage':
+        return <Ionicons name="cart" color={iconColor} size={iconSize} />;
+      case 'ProfilePage':
+        return <Ionicons name="person" color={iconColor} size={iconSize} />;
+      default:
+        return <Ionicons name="home" color={iconColor} size={iconSize} />;
+    }
+  };
+
+  return (
+    <View
+      style={{
+        position: "absolute",
+        bottom: 20,
+        height: 55,
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "center",
+        width: "90%",
+        alignSelf: "center",
+        borderRadius: 38,
+        elevation: 5,
+        backgroundColor: colors.card,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 5 },
+        shadowRadius: 10,
+      }}
+    >
+      {props.state.routes.map((route, index) => {
+        if (route.name === 'loginscreen') return null;
+
+        const isFocused = props.state.index === index;
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            onPress={() => props.navigation.navigate(route.name)}
+            style={{ alignItems: "center", justifyContent: "center" }}
+            activeOpacity={0.8}
+          >
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: isFocused ? "rgba(255,255,255,0.2)" : "transparent",
+              }}
+            >
+              {getTabIcon(route.name, isFocused)}
+            </View>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
 export default function TabNavigator() {
   const { colors } = useTheme();
@@ -10,55 +81,28 @@ export default function TabNavigator() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.text,
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 10,
-          left: 10,
-          right: 10,
-          elevation: 5,
-          backgroundColor: colors.card,
-          borderRadius: 20,
-          height: 70,
-          paddingBottom: 5,
-          paddingTop: 5,
-          shadowColor: '#000',
-          shadowOpacity: 0.1,
-          shadowOffset: { width: 0, height: 5 },
-          shadowRadius: 10,
-        },
+        tabBarShowLabel: true,
       }}
+      tabBar={(props) => <TabBar props={props} />}
     >
-     
       <Tabs.Screen
         name="index"
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" color={color} size={size} />
-          ),
         }}
       />
       <Tabs.Screen
         name="OrderPage"
         options={{
           tabBarLabel: 'Orders',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cart" color={color} size={size} />
-          ),
         }}
       />
       <Tabs.Screen
         name="ProfilePage"
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" color={color} size={size} />
-          ),
         }}
       />
-
       <Tabs.Screen
         name="loginscreen"
         options={{
