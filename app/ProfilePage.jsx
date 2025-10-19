@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import Avatar from '../assets/avatar.png';
 import Spacer from '../components/Spacer';
+import ActionButton from '../components/ActionButton';
 
 export default function ProfilePage() {
   const { colors, userPreference, setLightMode, setDarkMode, setSystemMode } = useTheme();
@@ -23,21 +24,23 @@ export default function ProfilePage() {
       <Text style={styles.guestText}>Login or register to view your profile</Text>
       
       <View style={styles.authButtonsContainer}>
-        <TouchableOpacity 
-          style={[styles.authButton, styles.loginButton]}
-          onPress={() => router.push('/login')}
-        >
-          <Ionicons name="log-in" size={20} color="#fff" style={styles.buttonIcon} />
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
+        <ActionButton
+          title="Login"
+          onPress={() => router.push('/login')}  
+          variant="primary"
+          icon="log-in"
+          fullWidth={false}
+          style={{ flex: 1 }}
+        />
         
-        <TouchableOpacity 
-          style={[styles.authButton, styles.registerButton]}
-          onPress={() => router.push('/register')}
-        >
-          <Ionicons name="person-add" size={20} color={colors.primary} style={styles.buttonIcon} />
-          <Text style={[styles.registerButtonText, { color: colors.primary }]}>Register</Text>
-        </TouchableOpacity>
+        <ActionButton
+          title="Register"
+          onPress={() => router.push('/register')}  
+          variant="outline"
+          icon="person-add"
+          fullWidth={false}
+          style={{ flex: 1 }}
+        />
       </View>
 
       <View style={styles.section}>
@@ -68,26 +71,16 @@ export default function ProfilePage() {
             const iconColor = isActive ? "#fff" : colors.primary;
 
             return (
-              <TouchableOpacity
+              <ActionButton
                 key={label}
+                title={label}
                 onPress={() => value === null ? setSystemMode() : value === 'light' ? setLightMode() : value === 'dark' ? setDarkMode() : null}
-                style={[
-                  styles.modeButton,
-                  isActive && styles.modeButtonActive
-                ]}
-              >
-                <Ionicons
-                  name={currentIcon}
-                  size={22}
-                  color={iconColor}
-                />
-                <Text style={[
-                  styles.modeButtonText,
-                  isActive && styles.modeButtonTextActive
-                ]}>
-                  {label}
-                </Text>
-              </TouchableOpacity>
+                variant={isActive ? "primary" : "secondary"}
+                size="small"
+                icon={currentIcon}
+                style={{ flex: 1 }}
+                textStyle={{ fontSize: 12 }}
+              />
             );
           })}
         </View>
@@ -148,38 +141,6 @@ export const profileStyles = (colors) =>
       gap: 12,
       marginBottom: 20,
     },
-    authButton: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: 12,
-      borderWidth: 2,
-    },
-    loginButton: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    registerButton: {
-      backgroundColor: 'transparent',
-      borderColor: colors.primary,
-    },
-    loginButtonText: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: '600',
-      marginLeft: 8,
-    },
-    registerButtonText: {
-      fontSize: 16,
-      fontWeight: '600',
-      marginLeft: 8,
-    },
-    buttonIcon: {
-      marginRight: 4,
-    },
     section: {
       width: '100%',
       padding: 20,
@@ -202,31 +163,6 @@ export const profileStyles = (colors) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       gap: 10,
-    },
-    modeButton: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'row',
-      gap: 8,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      paddingVertical: 12,
-      paddingHorizontal: 8,
-    },
-    modeButtonActive: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    modeButtonText: {
-      fontSize: 12,
-      fontWeight: '500',
-      color: colors.text,
-    },
-    modeButtonTextActive: {
-      color: '#fff',
     },
     currentThemeInfo: {
       marginTop: 15,
