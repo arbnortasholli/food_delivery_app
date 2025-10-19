@@ -44,8 +44,7 @@ function TabBar({ props }) {
       }}
     >
       {props.state.routes.map((route, index) => {
-        if (route.name === 'loginscreen') return null;
-
+        if (route.name.includes('auth') || route.name === 'loginscreen') return null;
         const isFocused = props.state.index === index;
 
         return (
@@ -101,12 +100,6 @@ export default function TabNavigator() {
         name="ProfilePage"
         options={{
           tabBarLabel: 'Profile',
-        }}
-      />
-      <Tabs.Screen
-        name="loginscreen"
-        options={{
-          href: null,
         }}
       />
     </Tabs>

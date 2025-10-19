@@ -63,15 +63,40 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  image: { width: 80, height: 80, borderRadius: 12, marginRight: 10 },
-  itemInfo: { flex: 1, justifyContent: 'center' },
-  foodText: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-  quantityBox: { flexDirection: 'row', alignItems: 'center' },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    marginRight: 10
+  },
+  itemInfo: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+  foodText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4
+
+  },
+  quantityBox: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
+  ,
   qtyButton: {
     padding: 6,
     borderRadius: 6,
     marginHorizontal: 4,
   },
-  qtyText: { fontSize: 16, fontWeight: 'bold' },
-  qtyCount: { fontSize: 16, fontWeight: '600', minWidth: 20, textAlign: 'center' },
+  qtyText: {
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
+  qtyCount: {
+    fontSize: 16,
+    fontWeight: '600',
+    minWidth: 20,
+    textAlign: 'center'
+  },
 });
