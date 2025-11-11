@@ -36,7 +36,7 @@ export default function LoginScreen() {
     setTimeout(() => {
       setIsLoading(false);
       Alert.alert('Success', 'Logged in successfully!');
-      router.replace('/index');
+      router.replace('/');
     }, 1500);
   };
 
