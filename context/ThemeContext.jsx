@@ -8,8 +8,9 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
     const systemScheme = Appearance.getColorScheme();
-    const [userPreference, setUserPreference] = useState(null);
+    const [userPreference, setUserPreference] = useState('light'); // Default light për të gjithë
     const [systemTheme, setSystemTheme] = useState(systemScheme);
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
     useEffect(() => {
         const listener = Appearance.addChangeListener(({ colorScheme }) => {
@@ -18,21 +19,68 @@ export const ThemeProvider = ({ children }) => {
         return () => listener.remove();
     }, []);
 
-    const isDarkMode = userPreference === null ? systemTheme === 'dark' : userPreference === 'dark';
+    // Kur useri është i loguar, përdor preferencën e tij (mund të jetë system, light, ose dark)
+    // Kur useri nuk është i loguar, përdor gjithmonë light mode
+    const getEffectiveTheme = () => {
+        if (!isUserLoggedIn) {
+            return 'light'; // Gjithmonë light për të paloguar
+        }
+        
+        // Për të loguar, përdor preferencën e userit
+        if (userPreference === null) {
+            return systemTheme; // System mode
+        }
+        return userPreference;
+    };
+
+    const effectiveTheme = getEffectiveTheme();
+    const isDarkMode = effectiveTheme === 'dark';
 
     const theme = isDarkMode ? Colors.dark : Colors.light;
-    const setLightMode = () => setUserPreference('light');
-    const setDarkMode = () => setUserPreference('dark');
-    const setSystemMode = () => setUserPreference(null);
+    
+    const setLightMode = () => {
+        if (isUserLoggedIn) {
+            setUserPreference('light');
+        }
+    };
+    
+    const setDarkMode = () => {
+        if (isUserLoggedIn) {
+            setUserPreference('dark');
+        }
+    };
+    
+    const setSystemMode = () => {
+        if (isUserLoggedIn) {
+            setUserPreference(null);
+        }
+    };
+
+    // Funksione për menaxhimin e statusit të login
+    const setUserLoggedIn = () => {
+        setIsUserLoggedIn(true);
+        // Kur useri logohet për herë të parë, vendos system mode si default
+        if (userPreference === 'light') {
+            setUserPreference(null);
+        }
+    };
+
+    const setUserLoggedOut = () => {
+        setIsUserLoggedIn(false);
+        setUserPreference('light'); // Reset to light mode
+    };
 
     const value = {
         colors: theme,
         isDark: isDarkMode,
         colorScheme: isDarkMode ? 'dark' : 'light',
-        userPreference,
+        userPreference: isUserLoggedIn ? userPreference : 'light',
         setLightMode,
         setDarkMode,
         setSystemMode,
+        setUserLoggedIn,
+        setUserLoggedOut,
+        isUserLoggedIn,
     };
 
     return (

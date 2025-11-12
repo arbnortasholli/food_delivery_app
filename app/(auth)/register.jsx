@@ -13,6 +13,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ActionButton from '../../components/ActionButton';
 import InputField from '../../components/InputField';
+import { registerUser } from '../../services/authService';
+import GoogleSignIn from '../../components/GoogleSignIn';
 
 export default function RegisterScreen() {
   const { colors } = useTheme();
@@ -52,11 +54,25 @@ export default function RegisterScreen() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    
+    try {
+      const { user, error } = await registerUser(
+        formData.email, 
+        formData.password, 
+        formData.fullName
+      );
+      
+      if (error) {
+        Alert.alert('Registration Failed', error);
+      } else {
+        Alert.alert('Success', 'Account created successfully!');
+        router.replace('/');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong');
+    } finally {
       setIsLoading(false);
-      Alert.alert('Success', 'Account created successfully!');
-      router.replace('/login');
-    }, 1500);
+    }
   };
 
   return (
@@ -69,7 +85,7 @@ export default function RegisterScreen() {
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
-            onPress={() => router.replace('/ProfilePage')} 
+            onPress={() => router.back()} 
           >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
@@ -84,6 +100,7 @@ export default function RegisterScreen() {
             onChangeText={(text) => setFormData({...formData, fullName: text})}
             type="text"
             icon="person-outline"
+            autoCapitalize="words"
           />
 
           <InputField
@@ -92,6 +109,8 @@ export default function RegisterScreen() {
             onChangeText={(text) => setFormData({...formData, email: text})}
             type="email"
             icon="mail-outline"
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
 
           <InputField
@@ -103,6 +122,7 @@ export default function RegisterScreen() {
             showPasswordToggle={true}
             onTogglePassword={() => setShowPassword(!showPassword)}
             icon="lock-closed-outline"
+            autoCapitalize="none"
           />
 
           <InputField
@@ -114,6 +134,7 @@ export default function RegisterScreen() {
             showPasswordToggle={true}
             onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
             icon="lock-closed-outline"
+            autoCapitalize="none"
           />
 
           <TouchableOpacity 
@@ -157,7 +178,7 @@ export default function RegisterScreen() {
           <View style={styles.socialContainer}>
             <ActionButton
               title="Google"
-              onPress={() => {}}
+              onPress={() => Alert.alert('Coming Soon', 'Google signup will be available soon')}
               variant="secondary"
               icon="logo-google"
               fullWidth={false}
@@ -166,7 +187,7 @@ export default function RegisterScreen() {
 
             <ActionButton
               title="Apple"
-              onPress={() => {}}
+              onPress={() => Alert.alert('Coming Soon', 'Apple signup will be available soon')}
               variant="secondary"
               icon="logo-apple"
               fullWidth={false}
@@ -198,7 +219,7 @@ const createStyles = (colors) => StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: 24,
-    paddingTop:50,
+    paddingTop: 50,
     justifyContent: 'flex-start',
   },
   header: {

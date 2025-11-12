@@ -1,17 +1,20 @@
+// app/_layout.jsx
+import { Stack } from 'expo-router';
 import { ThemeProvider } from '../context/ThemeContext';
 import { CartProvider } from '../context/CartContext';
-import TabNavigator from '../navigation/TabNavigator';
-import { StatusBar } from 'expo-status-bar';
+import { AuthProvider } from '../context/AuthContext';
 
-export default function Layout() {
-    return (
-        <>
-            <StatusBar style="auto" />
-            <ThemeProvider>
-                <CartProvider>
-                    <TabNavigator />
-                </CartProvider>
-            </ThemeProvider>
-        </>
-    );
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  );
 }

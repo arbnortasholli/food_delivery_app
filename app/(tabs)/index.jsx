@@ -8,11 +8,11 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
-import FoodCard from '../components/FoodCard';
-import InputField from '../components/InputField';
-import { foods } from '../constants/data';
+import { useTheme } from '../../context/ThemeContext';
+import { useCart } from '../../context/CartContext';
+import FoodCard from '../../components/FoodCard';
+import InputField from '../../components/InputField';
+import { foods } from '../../constants/data';
 
 export default function MainPage() {
   const navigation = useNavigation();

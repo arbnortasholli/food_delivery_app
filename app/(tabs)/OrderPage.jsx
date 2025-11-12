@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../context/ThemeContext';
-import { useCart } from '../context/CartContext';
-import FoodCard from '../components/FoodCard';
+import { useTheme } from '../../context/ThemeContext';
+import { useCart } from '../../context/CartContext';
+import FoodCard from '../../components/FoodCard';
 
 export default function OrderPage() {
   const { colors } = useTheme();

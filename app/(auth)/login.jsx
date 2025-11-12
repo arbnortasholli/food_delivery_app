@@ -13,6 +13,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ActionButton from '../../components/ActionButton';
 import InputField from '../../components/InputField';
+import { loginUser, resetPassword } from '../../services/authService';
+import GoogleSignIn from '../../components/GoogleSignIn';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
@@ -33,11 +35,40 @@ export default function LoginScreen() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    
+    try {
+      const { user, error } = await loginUser(formData.email, formData.password);
+      
+      if (error) {
+        Alert.alert('Login Failed', error);
+      } else {
+        Alert.alert('Success', 'Logged in successfully!');
+        router.replace('/');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong');
+    } finally {
       setIsLoading(false);
-      Alert.alert('Success', 'Logged in successfully!');
-      router.replace('/');
-    }, 1500);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!formData.email) {
+      Alert.alert('Error', 'Please enter your email first');
+      return;
+    }
+
+    try {
+      const { error } = await resetPassword(formData.email);
+      
+      if (error) {
+        Alert.alert('Error', error);
+      } else {
+        Alert.alert('Email Sent', 'Check your email for password reset instructions');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong');
+    }
   };
 
   return (
@@ -50,7 +81,7 @@ export default function LoginScreen() {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.replace('/ProfilePage')} 
+            onPress={() => router.back()} 
           >
             <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
@@ -65,6 +96,8 @@ export default function LoginScreen() {
             onChangeText={(text) => setFormData({ ...formData, email: text })}
             type="email"
             icon="mail-outline"
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
 
           <InputField
@@ -76,9 +109,13 @@ export default function LoginScreen() {
             showPasswordToggle={true}
             onTogglePassword={() => setShowPassword(!showPassword)}
             icon="lock-closed-outline"
+            autoCapitalize="none"
           />
 
-          <TouchableOpacity style={styles.forgotPassword}>
+          <TouchableOpacity 
+            style={styles.forgotPassword}
+            onPress={handleForgotPassword}
+          >
             <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>
               Forgot your password?
             </Text>
@@ -101,10 +138,11 @@ export default function LoginScreen() {
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
+          {/* Social buttons can be implemented later with Firebase Social Auth */}
           <View style={styles.socialContainer}>
             <ActionButton
               title="Google"
-              onPress={() => { }}
+              onPress={() => Alert.alert('Coming Soon', 'Google login will be available soon')}
               variant="secondary"
               icon="logo-google"
               fullWidth={false}
@@ -113,7 +151,7 @@ export default function LoginScreen() {
 
             <ActionButton
               title="Apple"
-              onPress={() => { }}
+              onPress={() => Alert.alert('Coming Soon', 'Apple login will be available soon')}
               variant="secondary"
               icon="logo-apple"
               fullWidth={false}
@@ -141,11 +179,10 @@ const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    
   },
   scrollContent: {
     flexGrow: 1,
-    paddingTop:50,
+    paddingTop: 50,
     padding: 24,
     justifyContent: 'flex-start',
   },
