@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
@@ -13,8 +13,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ActionButton from '../../components/ActionButton';
 import InputField from '../../components/InputField';
-import { loginUser, resetPassword } from '../../services/authService';
-import GoogleSignIn from '../../components/GoogleSignIn';
+import { loginUser, resetPassword, signInWithGitHub } from '../../services/authService';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
@@ -25,6 +24,7 @@ export default function LoginScreen() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGitHubLoading, setIsGitHubLoading] = useState(false);
 
   const styles = createStyles(colors);
 
@@ -49,6 +49,25 @@ export default function LoginScreen() {
       Alert.alert('Error', 'Something went wrong');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+ const handleGitHubLogin = async () => {
+    setIsGitHubLoading(true);
+    
+    try {
+      const { user, error } = await signInWithGitHub();
+      
+      if (error) {
+        Alert.alert('GitHub Login Failed', error);
+      } else {
+        Alert.alert('Success', 'Logged in with GitHub successfully!');
+        router.replace('/');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong during GitHub login');
+    } finally {
+      setIsGitHubLoading(false);
     }
   };
 
@@ -137,6 +156,17 @@ export default function LoginScreen() {
             <Text style={[styles.dividerText, { color: colors.text }]}>or</Text>
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
+
+          <ActionButton 
+            title="Continue with Github"
+            onPress={handleGitHubLogin}
+            variant="secondary"
+            loading={isGitHubLoading}
+            disabled={isGitHubLoading}
+            icon="logo-github"
+            fullWidth={true}
+          />
+          
 
           {/* Social buttons can be implemented later with Firebase Social Auth */}
           <View style={styles.socialContainer}>

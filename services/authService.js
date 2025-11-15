@@ -3,9 +3,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  updateProfile
+  updateProfile,
+  GithubAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { OAuthProvider } from 'firebase/auth/web-extension';
 
 export const registerUser = async (email, password, fullName) => {
   try {
@@ -66,3 +69,24 @@ export const resetPassword = async (email) => {
     return { error: errorMessage };
   }
 };
+
+export const signInWithGitHub = async () => {
+  try {
+    console.log("Starting GitHub login...");
+    const provider = new GithubAuthProvider();
+    provider.addScope('user:email');
+    
+    const result = await signInWithPopup(auth, provider);
+    console.log("GitHub login success:", result.user);
+    
+    return { user: result.user, error: null };
+    
+  } catch (error) {
+    console.error("Gabim në GitHub login:", error);
+    console.error("Error code:", error.code);
+    console.error("Error message:", error.message);
+    
+    return { user: null, error: error.message };
+  }
+};
+
