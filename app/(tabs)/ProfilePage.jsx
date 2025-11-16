@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,10 @@ import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import ActionButton from '../../components/ActionButton';
 import { logoutUser } from '../../services/authService';
+import { getUserFavourites } from "../../services/favouriteService";
+import { useFocusEffect } from '@react-navigation/native';
+
+
 
 export default function ProfilePage() {
   const { 
@@ -27,8 +31,11 @@ export default function ProfilePage() {
     isUserLoggedIn 
   } = useTheme();
   
+
   const router = useRouter();
   const { user, loading } = useAuth();
+  const userId = user?.uid;
+
 
   const styles = createStyles(colors);
 
@@ -132,6 +139,24 @@ export default function ProfilePage() {
       </SafeAreaView>
     );
   }
+  
+const [favourites, setFavourites] = useState([]);
+
+const refreshFavourites = async () => {
+  if (user) {
+    const favs = await getUserFavourites(user.uid);
+    setFavourites(favs);
+  }
+};
+
+useFocusEffect(
+  useCallback(() => {
+    refreshFavourites();
+  }, [user])
+);
+
+
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -239,6 +264,40 @@ export default function ProfilePage() {
             </View>
           </View>
         )}
+        {/* Favourite Foods */}
+<View style={{ marginBottom: 30 }}>
+  <Text style={[styles.sectionTitle, { color: colors.text }]}>
+    My Favourites
+  </Text>
+
+  {favourites.length === 0 ? (
+    <Text style={{ color: colors.text + "80" }}>
+      You haven't added any favourites yet.
+    </Text>
+  ) : (
+    favourites.map((f) => (
+      <View
+        key={f.id}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: colors.card,
+          padding: 12,
+          borderRadius: 12,
+          marginVertical: 8,
+        }}
+      >
+  
+        {/* Info */}
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: colors.text, fontSize: 16, fontWeight: "600" }}>
+            {f.name}
+          </Text>
+        </View>
+      </View>
+    ))
+  )}
+</View>
 
         {/* Profile Actions */}
         <View style={styles.actionsSection}>

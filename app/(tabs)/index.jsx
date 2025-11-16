@@ -13,6 +13,10 @@ import { useCart } from '../../context/CartContext';
 import FoodCard from '../../components/FoodCard';
 import InputField from '../../components/InputField';
 import { foods } from '../../constants/data';
+import { auth } from '../../config/firebase';
+import { addFavourite } from '../../services/favouriteService';
+
+
 
 export default function MainPage() {
   const navigation = useNavigation();
@@ -36,6 +40,17 @@ export default function MainPage() {
     addToCart(item);
     Alert.alert('Added to Cart', `${item.name} added!`);
   };
+ 
+  const userId = auth.currentUser?.uid;
+
+const handleFavourite = async (item) => {
+  if (!userId) {
+    Alert.alert("Not logged in", "You must be logged in to add favourites.");
+    return;
+  }
+
+  await addFavourite(userId, item);
+};
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -97,10 +112,12 @@ export default function MainPage() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <FoodCard
-            item={item}
-            onPress={() => handleAddToCart(item)}
-            showRemove={false}
+           item={item}
+           onPress={() => handleAddToCart(item)}
+           showRemove={false}
+           onFavourite={() => handleFavourite(item)}
           />
+
         )}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}

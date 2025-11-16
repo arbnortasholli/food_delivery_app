@@ -8,6 +8,7 @@ export default function FoodCard({
   showRemove = false,
   onIncrease,
   onDecrease,
+  onFavourite, 
 }) {
   const { colors } = useTheme();
 
@@ -52,6 +53,20 @@ export default function FoodCard({
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Favourite Button */}
+      <TouchableOpacity
+        style={{
+          padding: 6,
+          backgroundColor: colors.accent,
+          borderRadius: 8,
+          marginLeft: 10,
+        }}
+        onPress={() => onFavourite && onFavourite(item)}
+      >
+        <Text style={{ color: "white", fontSize: 12 }}>⭐</Text>
+      </TouchableOpacity>
+
     </TouchableOpacity>
   );
 }
