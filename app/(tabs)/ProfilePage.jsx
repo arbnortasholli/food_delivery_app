@@ -16,8 +16,9 @@ import ActionButton from '../../components/ActionButton';
 import { logoutUser } from '../../services/authService';
 import { getUserFavourites } from "../../services/favouriteService";
 import { useFocusEffect } from '@react-navigation/native';
-
-
+import AddressModal from '../../components/AddressModal';
+import { getUserAddress, updateUserAddress } from '../../services/databaseService';
+import { getFavorites,removeFavourite } from '../../services/favorites';
 
 export default function ProfilePage() {
   const { 
@@ -31,11 +32,12 @@ export default function ProfilePage() {
     isUserLoggedIn 
   } = useTheme();
   
-
   const router = useRouter();
   const { user, loading } = useAuth();
-  const userId = user?.uid;
-
+  const [address, setAddress] = useState('');
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [favourites, setFavourites] = useState([]);
 
   const styles = createStyles(colors);
 
@@ -47,6 +49,132 @@ export default function ProfilePage() {
       setUserLoggedOut();
     }
   }, [user, isUserLoggedIn, setUserLoggedIn, setUserLoggedOut]);
+
+  useEffect(() => {
+    if (user) {
+      loadUserAddress();
+    }
+  }, [user]);
+
+  const loadUserAddress = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      setAddressLoading(true);
+      const savedAddress = await getUserAddress(user.uid);
+      if (savedAddress) {
+        setAddress(savedAddress);
+      }
+    } catch (error) {
+      console.error('Error loading address:', error);
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
+  const handleSaveAddress = async (newAddress) => {
+    if (!user?.uid) return;
+    
+    try {
+      await updateUserAddress(user.uid, newAddress);
+      setAddress(newAddress);
+      Alert.alert('Success', 'Address updated successfully! ✅');
+    } catch (error) {
+      console.error('Error saving address:', error);
+      Alert.alert('Error', 'Failed to update address');
+    }
+  };
+
+  const handleDeleteAddress = () => {
+    Alert.alert(
+      'Delete Address',
+      'Are you sure you want to remove your delivery address?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await updateUserAddress(user.uid, '');
+              setAddress('');
+              Alert.alert('Success', 'Address removed successfully');
+            } catch (error) {
+              console.error('Error deleting address:', error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleRemoveFavourite = async (itemId, itemName) => {
+  Alert.alert(
+    'Remove Favourite',
+    `Are you sure you want to remove "${itemName}" from favourites?`,
+    [
+      { 
+        text: 'Cancel', 
+        style: 'cancel' 
+      },
+      { 
+        text: 'Remove', 
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            console.log("🔄 Starting remove process...");
+            
+            const { error, success } = await removeFavourite(itemId);
+            
+            if (error) {
+              console.error('❌ Remove failed:', error);
+              Alert.alert('Error', 'Failed to remove favourite');
+            } else if (success) {
+              console.log("✅ Remove successful, refreshing favourites...");
+              Alert.alert('Success', 'Removed from favourites!');
+              
+              
+              await refreshFavourites();
+              console.log("🔄 Favourites refreshed after remove");
+            }
+          } catch (error) {
+            console.error('❌ Error in handleRemoveFavourite:', error);
+            Alert.alert('Error', 'Failed to remove favourite');
+          }
+        }
+      }
+    ]
+  );
+};
+
+  const refreshFavourites = async () => {
+  if (user) {
+    console.log("🔍 Getting favourites for user:", user.uid);
+    const favs = await getFavorites();
+    console.log('📋 Raw favourites data:', favs);
+    
+   
+    if (Array.isArray(favs)) {
+      console.log("✅ Favourites is an array, length:", favs.length);
+      favs.forEach((item, index) => {
+        console.log(`Item ${index}:`, {
+          value: item,
+          type: typeof item
+        });
+      });
+    } else {
+      console.log("❌ Favourites is not an array:", typeof favs);
+    }
+    
+    setFavourites(favs);
+  }
+};
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshFavourites();
+    }, [user])
+  );
 
   const handleLogout = async () => {
     Alert.alert(
@@ -67,7 +195,6 @@ export default function ProfilePage() {
                 Alert.alert('Error', error);
               } else {
                 Alert.alert('Success', 'Logged out successfully!');
-                // setUserLoggedOut do të thirret automatikisht nga useEffect
               }
             } catch (error) {
               Alert.alert('Error', 'Failed to log out');
@@ -86,7 +213,6 @@ export default function ProfilePage() {
     router.push('/(auth)/register');
   };
 
-  // Funksion për të kontrolluar temën aktuale për shfaqje
   const getCurrentThemeDisplay = () => {
     if (!user) {
       return 'Light (default)';
@@ -98,7 +224,6 @@ export default function ProfilePage() {
       : 'Dark';
   };
 
-  // Funksion për të kontrolluar nëse mund të ndryshohet tema
   const handleThemeChange = (value) => {
     if (!user) {
       Alert.alert(
@@ -127,7 +252,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Nëse po loading, shfaq loading state
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -139,24 +263,6 @@ export default function ProfilePage() {
       </SafeAreaView>
     );
   }
-  
-const [favourites, setFavourites] = useState([]);
-
-const refreshFavourites = async () => {
-  if (user) {
-    const favs = await getUserFavourites(user.uid);
-    setFavourites(favs);
-  }
-};
-
-useFocusEffect(
-  useCallback(() => {
-    refreshFavourites();
-  }, [user])
-);
-
-
-
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -171,7 +277,6 @@ useFocusEffect(
           </View>
           
           {user ? (
-            // User i loguar
             <View style={styles.userInfo}>
               <Text style={[styles.userName, { color: colors.text }]}>
                 {user.displayName || 'User'}
@@ -183,7 +288,6 @@ useFocusEffect(
                 <Ionicons name="checkmark-circle" size={16} color="#FFFFFF" />
                 <Text style={styles.verifiedText}>Verified</Text>
               </View>
-              {/* Shfaq informacion se cila temë po përdoret për user të loguar */}
               <View style={[styles.currentThemeInfo, { marginTop: 8 }]}>
                 <Text style={[styles.currentThemeText, { color: colors.text + '60' }]}>
                   Current theme: {getCurrentThemeDisplay()}
@@ -191,7 +295,6 @@ useFocusEffect(
               </View>
             </View>
           ) : (
-            // User i paloguar
             <View style={styles.userInfo}>
               <Text style={[styles.userName, { color: colors.text }]}>
                 Welcome!
@@ -199,7 +302,6 @@ useFocusEffect(
               <Text style={[styles.userEmail, { color: colors.text + '80' }]}>
                 Please log in to your account
               </Text>
-              {/* Shfaq informacion se cila temë po përdoret */}
               <View style={[styles.currentThemeInfo, { marginTop: 8 }]}>
                 <Text style={[styles.currentThemeText, { color: colors.text + '60' }]}>
                   Current theme: {getCurrentThemeDisplay()}
@@ -209,7 +311,7 @@ useFocusEffect(
           )}
         </View>
 
-        {/* Theme Preference Section - Shfaqet VETËM nëse useri është i loguar */}
+        {/* Theme Preference Section */}
         {user && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Appearance</Text>
@@ -264,45 +366,54 @@ useFocusEffect(
             </View>
           </View>
         )}
-        {/* Favourite Foods */}
-<View style={{ marginBottom: 30 }}>
-  <Text style={[styles.sectionTitle, { color: colors.text }]}>
-    My Favourites
-  </Text>
 
-  {favourites.length === 0 ? (
-    <Text style={{ color: colors.text + "80" }}>
-      You haven't added any favourites yet.
-    </Text>
-  ) : (
-    favourites.map((f) => (
-      <View
-        key={f.id}
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: colors.card,
-          padding: 12,
-          borderRadius: 12,
-          marginVertical: 8,
-        }}
-      >
-  
-        {/* Info */}
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.text, fontSize: 16, fontWeight: "600" }}>
-            {f.name}
+
+        <View style={styles.favouritesSection}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            My Favourites ❤️
           </Text>
-        </View>
-      </View>
-    ))
-  )}
-</View>
 
-        {/* Profile Actions */}
+          {favourites.length === 0 ? (
+            <View style={styles.emptyFavourites}>
+              <Ionicons name="heart-outline" size={48} color={colors.text + '40'} />
+              <Text style={[styles.emptyFavouritesText, { color: colors.text + '60' }]}>
+                You haven't added any favourites yet
+              </Text>
+              <Text style={[styles.emptyFavouritesSubtext, { color: colors.text + '40' }]}>
+                Tap the heart icon on food items to add them here
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.favouritesList}>
+              {favourites.map((favourite) => (
+                <View
+                  key={favourite.id}
+                  style={[styles.favouriteItem, { backgroundColor: colors.card }]}
+                >
+                  <View style={styles.favouriteInfo}>
+                    <Text style={[styles.favouriteName, { color: colors.text }]}>
+                      {favourite.name}
+                    </Text>
+                    <Text style={[styles.favouritePrice, { color: colors.primary }]}>
+                      ${favourite.price}
+                    </Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => handleRemoveFavourite(favourite.id, favourite.name)}
+                    style={[styles.removeButton, { backgroundColor: colors.background }]}
+                  >
+                    <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+
+     
         <View style={styles.actionsSection}>
           {user ? (
-            // User i loguar - shfaq profile actions dhe logout
             <>
               <TouchableOpacity style={[styles.actionItem, { backgroundColor: colors.card }]}>
                 <Ionicons name="person-outline" size={24} color={colors.primary} />
@@ -310,9 +421,28 @@ useFocusEffect(
                 <Ionicons name="chevron-forward" size={20} color={colors.text + '60'} />
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.actionItem, { backgroundColor: colors.card }]}>
+              <TouchableOpacity
+                style={[styles.actionItem, {backgroundColor: colors.card}]}
+                onPress={() => {
+                  console.log("Address item pressed");
+                  setShowAddressModal(true);
+                }}
+                activeOpacity={0.7}>
                 <Ionicons name="location-outline" size={24} color={colors.primary} />
-                <Text style={[styles.actionText, { color: colors.text }]}>Addresses</Text>
+                <View style={styles.addressActionContent}>
+                  <Text style={[styles.actionText, { color: colors.text }]}>
+                    Delivery Address
+                  </Text>
+                  {address ? (
+                    <Text style={[styles.addressPreview, { color: colors.text + '70' }]} numberOfLines={1}>
+                      {address.length > 30 ? address.substring(0, 30) + '...' : address}
+                    </Text>
+                  ) : (
+                    <Text style={[styles.noAddressText, { color: colors.text + '60' }]}>
+                      Not set - Tap to add
+                    </Text>
+                  )}
+                </View>
                 <Ionicons name="chevron-forward" size={20} color={colors.text + '60'} />
               </TouchableOpacity>
 
@@ -328,7 +458,6 @@ useFocusEffect(
                 <Ionicons name="chevron-forward" size={20} color={colors.text + '60'} />
               </TouchableOpacity>
 
-              {/* Logout Button */}
               <ActionButton
                 title="Log Out"
                 onPress={handleLogout}
@@ -339,7 +468,6 @@ useFocusEffect(
               />
             </>
           ) : (
-            // User i paloguar - shfaq login/register
             <>
               <ActionButton
                 title="Sign In"
@@ -376,10 +504,16 @@ useFocusEffect(
           </Text>
         </View>
       </ScrollView>
+
+      <AddressModal
+        visible={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onSave={handleSaveAddress}
+        existingAddress={address}
+      />
     </SafeAreaView>
   );
 }
-
 
 const createStyles = (colors) => StyleSheet.create({
   container: {
@@ -435,7 +569,6 @@ const createStyles = (colors) => StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  // Stilimet për seksionin e temës
   section: {
     marginBottom: 30,
   },
@@ -456,6 +589,53 @@ const createStyles = (colors) => StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
   },
+  favouritesSection: {
+    marginBottom: 30,
+  },
+  emptyFavourites: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+    borderRadius: 12,
+    backgroundColor: colors.card + '50',
+  },
+  emptyFavouritesText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  emptyFavouritesSubtext: {
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  favouritesList: {
+    gap: 8,
+  },
+  favouriteItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+  },
+  favouriteInfo: {
+    flex: 1,
+  },
+  favouriteName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  favouritePrice: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  removeButton: {
+    padding: 8,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
   actionsSection: {
     marginBottom: 40,
   },
@@ -465,6 +645,7 @@ const createStyles = (colors) => StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
+    minHeight: 60,
   },
   actionText: {
     flex: 1,
@@ -499,5 +680,19 @@ const createStyles = (colors) => StyleSheet.create({
   },
   appVersion: {
     fontSize: 14,
+  },
+  addressActionContent: {
+    flex: 1,
+    marginLeft: 12,
+    paddingVertical: 8,
+  },
+  addressPreview: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  noAddressText: {
+    fontSize: 12,
+    marginTop: 2,
+    fontStyle: 'italic',
   },
 });

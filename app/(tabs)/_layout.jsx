@@ -15,6 +15,8 @@ function TabBar({ props }) {
                 return <Ionicons name="home" color={iconColor} size={iconSize} />;
             case 'OrderPage':
                 return <Ionicons name="cart" color={iconColor} size={iconSize} />;
+            case 'OrderHistory':
+                return <Ionicons name="receipt" color={iconColor} size={iconSize}/>;
             case 'ProfilePage':
                 return <Ionicons name="person" color={iconColor} size={iconSize} />;
             default:
@@ -24,7 +26,8 @@ function TabBar({ props }) {
 
     const visibleTabs = [
         { name: 'index', label: 'Home' },
-        { name: 'OrderPage', label: 'Orders' },
+        { name: 'OrderPage', label: 'Cart' },
+        { name: 'OrderHistory', label:'Orders'},
         { name: 'ProfilePage', label: 'Profile' }
     ];
 
@@ -100,12 +103,21 @@ export default function TabNavigator() {
                     tabBarLabel: 'Orders',
                 }}
             />
+             <Tabs.Screen
+                name="OrderHistory"
+                options={{
+                tabBarLabel: 'History',
+                tabBarIcon: ({ color, size }) => (
+                <Ionicons name="time-outline" size={size} color={color} />
+                ),
+             }}
+            />
             <Tabs.Screen
                 name="ProfilePage"
                 options={{
                     tabBarLabel: 'Profile',
                 }}
-            />
+            />  
         </Tabs>
     );
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useTheme } from "../context/ThemeContext";
+import { getFoodImage } from "../utils/imageUtils";
 
 export default function FoodCard({
   item,
@@ -11,6 +12,7 @@ export default function FoodCard({
   onFavourite, 
 }) {
   const { colors } = useTheme();
+  const imageSource = getFoodImage(item.name);
 
   return (
     <TouchableOpacity
@@ -21,11 +23,14 @@ export default function FoodCard({
       onPress={() => onPress && onPress(item)}
       activeOpacity={0.9}
     >
-      <Image source={item.image} style={styles.image} resizeMode="cover" />
+      <Image source={imageSource} style={styles.image} resizeMode="cover" />
 
       <View style={styles.itemInfo}>
         <Text style={[styles.foodText, { color: colors.text }]}>
           {item.name} {item.quantity ? `x${item.quantity}` : ""}
+        </Text>
+         <Text style={[styles.description, { color: colors.text + '80' }]}>
+          {item.description}
         </Text>
         <Text style={{ color: colors.accent, fontWeight: "bold" }}>
           ${((item.price || 0) * (item.quantity || 1)).toFixed(2)}
@@ -96,6 +101,10 @@ const styles = StyleSheet.create({
   foodText: {
     fontSize: 16,
     fontWeight: "600",
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 12,
     marginBottom: 4,
   },
   quantityBox: {

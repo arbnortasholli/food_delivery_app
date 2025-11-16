@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useLayoutEffect, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,11 @@ import InputField from '../../components/InputField';
 import { foods } from '../../constants/data';
 import { auth } from '../../config/firebase';
 import { addFavourite } from '../../services/favouriteService';
+import { getRestaurants, getMenuItems } from '../../services/databaseService';
+import { seedDatabase } from '../../utils/seedData';
+import { useAuth } from '../../context/AuthContext';
+import { getUserOrders } from '../../services/databaseService';
+
 
 
 
@@ -24,9 +29,49 @@ export default function MainPage() {
   const { addToCart } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('ALL');
+  const [restaurants, setRestaurants] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userOrders, setUserOrders] = useState([]);
+  const { user } = useAuth();
 
   const categories = ['ALL', 'PIZZA', 'PASTA', 'SUSHI', 'FAST FOOD'];
+  useEffect(() => {
+    loadData();
+  }, []);
 
+  useEffect(() => {
+    if(user){
+      loadUserOrders();
+    }
+  },[user]);
+
+  const loadData = async () => {
+    try{
+      setLoading(true);
+      const [restaurantsData, menuData] = await Promise.all([
+        getRestaurants(),
+        getMenuItems()
+      ]);
+
+      if(menuData.length===0){
+        console.log('No data found, seeding database automatically...');
+        await seedDatabase();
+        const [newRestaurants, newMenu] = await Promise.all([
+          getRestaurants(),
+          getMenuItems('all')
+        ]);
+      }
+
+      setRestaurants(restaurantsData);
+      setMenuItems(menuData);
+    } catch(error){
+      console.error('Error loading data:', error);
+      Alert.alert('Error', 'Failed to load data');
+    } finally{
+      setLoading(false);
+    }
+  };
   const filteredFoods = foods.filter((item) => {
     const matchesSearch = item.name
       .toLowerCase()
@@ -35,6 +80,28 @@ export default function MainPage() {
       activeCategory === 'ALL' || item.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleSeedData = async () => {
+  const success = await seedDatabase();
+  if (success) {
+    Alert.alert('Success', 'Database seeded! Refreshing...');
+    loadData(); // Rifresko të dhënat
+  } else {
+    Alert.alert('Error', 'Failed to seed database');
+  }
+};
+
+const loadUserOrders = async () => {
+  try {
+    if (user) {
+      const orders = await getUserOrders(user.uid);
+      console.log('User orders:', orders);
+      
+    }
+  } catch (error) {
+    console.error('Error loading user orders:', error);
+  }
+};
 
   const handleAddToCart = (item) => {
     addToCart(item);
@@ -94,6 +161,21 @@ const handleFavourite = async (item) => {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+
+    {/* <TouchableOpacity 
+        style={{
+          position: 'absolute',
+          top: 50,
+          right: 20,
+          backgroundColor: '#FF7A00',
+          padding: 10,
+          borderRadius: 8,
+          zIndex: 1000
+        }}
+        onPress={handleSeedData}
+      >
+        <Text style={{color: 'white', fontWeight: 'bold'}}>SEED DATA</Text>
+      </TouchableOpacity> */}
 
       <InputField
         placeholder="Search food..."

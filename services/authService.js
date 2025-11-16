@@ -9,6 +9,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { OAuthProvider } from 'firebase/auth/web-extension';
+import { createUserProfile } from './databaseService';
 
 export const registerUser = async (email, password, fullName) => {
   try {
@@ -20,6 +21,11 @@ export const registerUser = async (email, password, fullName) => {
         displayName: fullName
       });
     }
+    await createUserProfile(user.uid, {
+      email: user.email,
+      displayName: fullName,
+      createdAt: new Date().toISOString()
+    });
 
     return { user, error: null };
   } catch (error) {
@@ -78,6 +84,14 @@ export const signInWithGitHub = async () => {
     
     const result = await signInWithPopup(auth, provider);
     console.log("GitHub login success:", result.user);
+    const user = result.user;
+    await createUserProfile(user.uid, {
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+      provider: 'github',
+      lastLogin: new Date().toISOString()
+    });
     
     return { user: result.user, error: null };
     
@@ -89,4 +103,5 @@ export const signInWithGitHub = async () => {
     return { user: null, error: error.message };
   }
 };
+
 
