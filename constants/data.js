@@ -41,4 +41,13 @@ export const foods = [
     image: require("../assets/foods/nuggets.jpg"),
     category: "FAST FOOD",
   },
+
+  {
+  id: "7",
+  name: "Spaghetti Carbonara",
+  price: 9.99,
+  image: require("../assets/foods/carbonara.jpg"), 
+  category: "PASTA",
+},
+
 ];
